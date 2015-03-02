@@ -4,7 +4,7 @@
 ''*  DeathStarDriver.spin                                                           *
 ''*  With a 3D printed Death Star shell from PongSat Parts (PSP) LLC, you can       *
 ''*  become Darth Vader and control a fully opertional space station.               *
-''*  Author: Blaze Sanders                                                          *
+''*  Author: Blaze Sanders [blaze.sanders@solarsystemexpress.com]                   *
 ''*  Copyright (c) 2015 PongSat Parts LLC                                           *
 ''*  See end of file for terms of use.                                              *
 ''***********************************************************************************
@@ -25,6 +25,10 @@
 ''*  www.???                                                                        * 
 ''*  The Death Star plans / datasheet can be found at:                              *
 ''*  www.???                                                                        *
+''*                                                                         * 
+''*  Revisions:                                                                     *
+''*  - Mark I (March 15, 2012): Initial release                                     * 
+ ''**********************************************************************************  
  ''**********************************************************************************                                                        
 }}
 VAR 'Global variables  
@@ -44,6 +48,10 @@ byte targetDestoryed
 
 CON 'Global Constants
 
+'Standard clock mode * crystal frequency = 16 * 5 MHz = 80 MHz
+_clkmode = xtal1 + pll16x
+_xinfreq = 5_000_000
+  
 '----General useful constants---- 
 HIGH = 1
 LOW = 0
@@ -57,11 +65,16 @@ INPUT = 0
 I2C_SCL = 28
 I2C_SDA = 29
 
-
 '--CMU Camera hardware pins--
 ''CAMERA_RX_PIN 
 ''CAMERA_TX_PIN
 ''CAMERA_BAUD_RATE
+
+
+'--EMIC 2 hardware pins--
+EMIC_TX        = 6             ' Serial output (connects to Emic 2 SIN)
+EMIC_RX        = 7             ' Serial input (connects to Emic 2 SOUT)
+VOICE_BAUD_RATE = 9600         ' 9600 bits per second (BPS) 
 
 
 '--Program debugging pins and constants--x`
@@ -100,6 +113,10 @@ WIRELESS_SBAND   : "n2420"
 'Used to stream video and images between two objects in LEO 
 WIRELESS_MESHNET : "AnareanAIR"
 
+'Used to control CPU clock timing functions
+'Source URL - http://obex.parallax.com/object/173
+TIMING          : "Clock"
+
 
 PUB Main 'First method called, like in JAVA
 
@@ -119,13 +136,17 @@ TEXT_TO_VOICE.Speek(STRING("Luke I'm your father"))
 'Fire laser at 100% for 1 second using channel #10
 targetDestoryed := LASER.Fire(100, 1, 10)
 
+
+
 PRI InitializeDeathStar | OK 'Initializes all the Death Star hardware and firmware     
 
 if (DEBUG_MODE)
   DEBUG.start(DEBUG_OUTPUT_PIN, DEBUG_INPUT_PIN, 0, DEBUG_BAUD_RATE)
-  
+
+EMIC2.Initialize(EMIC2#DARTH_VADER, EMIC_RX, EMIC_TX, VOICE_BAUD_RATE)  
 IMU.Initialize
 REACTION_WHEEL.Initialize
+ 
 
 
 TRACKING_CAMERA.CameraPower(TRUE) 
@@ -139,3 +160,26 @@ PRI Reset
 
 TRACKING_CAMERA.ResetCamera
 IMU.ResetIMU
+
+PRI UnitTest | BOOT_MODE
+
+repeat 
+  DEBUG.SendText(STRING("Hello Earthling,", DEBUG#CR))
+  DEBUG.SendText(STRING("Type 2 and hit enter to boot Death Star in planet destruction mode.", DEBUG#CR))
+  DEBUG.SendText(STRING("Type 1 and hit enter to boot Death Star in self destruct mode.", DEBUG#CR))
+  DEBUG.SendText(STRING("Type 0 and hit enter to boot Death Star in test mode.", DEBUG#CR))  
+  TIMING.PauseSec(5)      'Pause 5 seconds 
+until(BOOT_MODE := DEBUG.GetNumber)
+
+DEBUG.start(DEBUG_OUTPUT_PIN, DEBUG_INPUT_PIN, 0, DEBUG_BAUD_RATE)
+
+case BOOT_MODE
+  0: 'Initializes debug mode and infite loop 
+                
+    'Stop 
+  1: 'Initializes infite loop for 
+      
+    'Stop     
+  2: 'Initializes connection to the Parallax Serial Terminal     
+
+    'Stop   
