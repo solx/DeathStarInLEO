@@ -1,5 +1,5 @@
-# DeathStarInLEO
-This is Parallax Propeller SPIN and assembly code to control a miniature (about 10 cm) Star Wars Death Star and Alderaan planet model, which will go into LEO in time for the release of the Star Wars VII movie coming out in Dec 18, 2015
+﻿# DeathStarInLEO
+This is Parallax Propeller SPIN and assembly code to control a miniature (about 10 cm) Star Wars Death Star and Alderaan planet model, which will go into LEO in time for the release of the Star Wars VIII movie coming out in May 2017. 
 
 The Death Star will contain four working lasers and two cameras to test laser communication and power beaming in space (a commercial first) and will trigger Alderaan to blow up (Engineering  implementation to be determined).
  
